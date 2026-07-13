@@ -11,7 +11,7 @@ function isLeftOf(claimer: PlayerIndex, discarder: PlayerIndex): boolean {
 
 export function getClaimOptions(
   hand: Tile[],
-  _melds: Meld[],
+  melds: Meld[],
   discard: Tile,
   playerIndex: PlayerIndex,
   discarderIndex: PlayerIndex
@@ -19,7 +19,7 @@ export function getClaimOptions(
   const options: ClaimOption[] = [{ type: 'pass', tiles: [] }]
 
   // Win check
-  if (isWinningHand([...hand, discard])) {
+  if (isWinningHand([...hand, discard], melds.length)) {
     options.push({ type: 'win', tiles: [discard] })
   }
 

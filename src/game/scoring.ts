@@ -14,7 +14,7 @@ export function calculateTai(hand: Tile[], melds: Meld[], isSelfDraw: boolean): 
 
   // Concealed hand tiles for decomposition
   const allTiles = [...hand]
-  const decomps = findWinningDecompositions(allTiles)
+  const decomps = findWinningDecompositions(allTiles, melds.length)
 
   // Convert exposed melds to MeldGroup[] for structural pattern checking
   const exposedMelds: MeldGroup[] = melds.map(m => ({

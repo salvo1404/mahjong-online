@@ -29,8 +29,8 @@ export function useGameLoop(state: GameState, dispatch: (a: GameAction) => void)
       const pi = state.currentTurn as PlayerIndex
       const player = state.players[pi]
 
-      // Phase 2: hand already has the drawn tile (14 concealed tiles, no melds)
-      if (player.hand.length === 14 && isWinningHand(player.hand)) {
+      // Phase 2: hand already has the drawn tile — check using meld-aware lengths
+      if (player.hand.length === 14 - player.melds.length * 3 && isWinningHand(player.hand, player.melds.length)) {
         const timer = setTimeout(() => {
           dispatch({ type: 'DECLARE_WIN', playerIndex: pi, isSelfDraw: true })
         }, 400)

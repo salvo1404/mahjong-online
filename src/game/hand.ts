@@ -45,9 +45,10 @@ export function isSevenPairs(tiles: Tile[]): boolean {
   return true
 }
 
-export function isWinningHand(tiles: Tile[]): boolean {
-  if (tiles.length !== 14) return false
-  if (isSevenPairs(tiles)) return true
+export function isWinningHand(tiles: Tile[], meldCount: number = 0): boolean {
+  const expectedTiles = 14 - meldCount * 3
+  if (tiles.length !== expectedTiles) return false
+  if (meldCount === 0 && isSevenPairs(tiles)) return true
   const sorted = sortTiles(tiles)
   // Try each unique pair position as the head
   for (let i = 0; i < sorted.length - 1; i++) {
@@ -61,9 +62,9 @@ export function isWinningHand(tiles: Tile[]): boolean {
   return false
 }
 
-export function findWinningDecompositions(tiles: Tile[]): MeldGroup[][] {
-  if (!isWinningHand(tiles)) return []
-  if (isSevenPairs(tiles)) {
+export function findWinningDecompositions(tiles: Tile[], meldCount: number = 0): MeldGroup[][] {
+  if (!isWinningHand(tiles, meldCount)) return []
+  if (meldCount === 0 && isSevenPairs(tiles)) {
     const sorted = sortTiles(tiles)
     const groups: MeldGroup[] = []
     for (let i = 0; i < 14; i += 2) {
@@ -151,20 +152,25 @@ function countGroups(tiles: Tile[]): { sets: number; pairs: number; partial: num
   return { sets, pairs, partial }
 }
 
-export function shanten(tiles: Tile[]): number {
-  if (isWinningHand(tiles)) return -1
+export function shanten(tiles: Tile[], meldCount: number = 0): number {
+  if (isWinningHand(tiles, meldCount)) return -1
 
-  // seven pairs shanten
-  const sorted = sortTiles(tiles)
-  let pairs = 0
-  for (let i = 0; i + 1 < sorted.length; i++) {
-    if (tilesEqual(sorted[i], sorted[i + 1])) { pairs++; i++ }
+  // seven pairs shanten (only valid with no exposed melds and 14 tiles)
+  let sevenPairsShanten = Infinity
+  if (meldCount === 0) {
+    const sorted = sortTiles(tiles)
+    let pairs = 0
+    for (let i = 0; i + 1 < sorted.length; i++) {
+      if (tilesEqual(sorted[i], sorted[i + 1])) { pairs++; i++ }
+    }
+    sevenPairsShanten = 6 - pairs
   }
-  const sevenPairsShanten = 6 - pairs
 
-  // standard shanten: 8 - 2*sets - partial
+  // standard shanten: initialShanten - 2*sets - partial
+  const maxSets = 4 - meldCount
+  const initialShanten = maxSets * 2
   const { sets, partial } = countGroups(tiles)
-  const standardShanten = 8 - 2 * sets - partial
+  const standardShanten = initialShanten - 2 * sets - partial
 
   return Math.min(sevenPairsShanten, standardShanten)
 }

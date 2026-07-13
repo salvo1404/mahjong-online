@@ -24,6 +24,24 @@ describe('isWinningHand', () => {
     const hand = [t('bamboo',1),t('bamboo',2),t('bamboo',3)]
     expect(isWinningHand(hand)).toBe(false)
   })
+  it('with meldCount=1 accepts 11-tile concealed hand (3 sets + pair)', () => {
+    const hand = [
+      t('bamboo',1),t('bamboo',2),t('bamboo',3),
+      t('bamboo',4),t('bamboo',5),t('bamboo',6),
+      t('circles',1),t('circles',2),t('circles',3),
+      t('bamboo',9),t('bamboo',9),
+    ]
+    expect(isWinningHand(hand, 1)).toBe(true)
+  })
+  it('with meldCount=1 rejects 11-tile hand that is not a win', () => {
+    const hand = [
+      t('bamboo',1),t('bamboo',2),t('bamboo',3),
+      t('bamboo',4),t('bamboo',5),t('bamboo',6),
+      t('circles',1),t('circles',2),t('circles',3),
+      t('bamboo',8),t('bamboo',9),
+    ]
+    expect(isWinningHand(hand, 1)).toBe(false)
+  })
 })
 
 describe('isSevenPairs', () => {

@@ -21,8 +21,8 @@ export default function App() {
   const canSelfDrawWin =
     state.currentTurn === 0 &&
     state.phase === 'drawing' &&
-    state.players[0].hand.length === 14 &&
-    isWinningHand(state.players[0].hand)
+    state.players[0].hand.length === 14 - state.players[0].melds.length * 3 &&
+    isWinningHand(state.players[0].hand, state.players[0].melds.length)
 
   // Compute human claim options when it's claiming phase after AI discard
   const humanClaimOptions = (() => {
