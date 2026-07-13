@@ -2,6 +2,7 @@ import { useReducer, useState } from 'react'
 import { gameReducer, createInitialState } from './state/gameReducer'
 import { getClaimOptions } from './game/rules'
 import { calculateTai } from './game/scoring'
+import { isWinningHand } from './game/hand'
 import { useGameLoop } from './hooks/useGameLoop'
 import Board from './components/Board'
 import ActionPanel from './components/ActionPanel'
@@ -16,6 +17,12 @@ export default function App() {
   useGameLoop(state, dispatch)
 
   const isHumanTurn = state.currentTurn === 0 && state.phase === 'drawing'
+
+  const canSelfDrawWin =
+    state.currentTurn === 0 &&
+    state.phase === 'drawing' &&
+    state.players[0].hand.length === 14 &&
+    isWinningHand(state.players[0].hand)
 
   // Compute human claim options when it's claiming phase after AI discard
   const humanClaimOptions = (() => {
@@ -54,6 +61,16 @@ export default function App() {
   return (
     <>
       <Board state={state} selectedTile={selectedTile} onTileClick={handleTileClick} />
+      {canSelfDrawWin && (
+        <div style={{ position: 'fixed', bottom: 120, left: '50%', transform: 'translateX(-50%)', zIndex: 50 }}>
+          <button
+            onClick={() => dispatch({ type: 'DECLARE_WIN', playerIndex: 0, isSelfDraw: true })}
+            style={{ padding: '12px 24px', fontSize: '18px', fontWeight: 700, background: '#e74c3c', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer' }}
+          >
+            自摸 Win!
+          </button>
+        </div>
+      )}
       {showActionPanel && (
         <div style={{ position: 'fixed', bottom: 120, left: '50%', transform: 'translateX(-50%)', zIndex: 50 }}>
           <ActionPanel options={humanClaimOptions} onClaim={handleClaim} />

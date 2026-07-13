@@ -11,7 +11,7 @@ function isLeftOf(claimer: PlayerIndex, discarder: PlayerIndex): boolean {
 
 export function getClaimOptions(
   hand: Tile[],
-  melds: Meld[],
+  _melds: Meld[],
   discard: Tile,
   playerIndex: PlayerIndex,
   discarderIndex: PlayerIndex

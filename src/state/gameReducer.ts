@@ -106,9 +106,9 @@ export function createInitialState(): GameState {
   let deadWall = fullWall.splice(0, 16)
   let wall = fullWall
 
-  // Deal 16 tiles to each player in column-style dealing
+  // Deal 13 tiles to each player in column-style dealing
   const rawHands: Tile[][] = [[], [], [], []]
-  for (let round = 0; round < 16; round++) {
+  for (let round = 0; round < 13; round++) {
     for (let p = 0; p < 4; p++) {
       rawHands[p].push(wall.pop()!)
     }

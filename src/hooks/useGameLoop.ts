@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import type { GameState, GameAction } from '../state/gameReducer'
 import { aiChooseDiscard, aiChooseClaim } from '../game/ai'
 import { getClaimOptions } from '../game/rules'
+import { isWinningHand } from '../game/hand'
 import type { PlayerIndex } from '../game/tiles'
 
 function randomDelay(min: number, max: number): Promise<void> {
@@ -9,27 +10,44 @@ function randomDelay(min: number, max: number): Promise<void> {
 }
 
 export function useGameLoop(state: GameState, dispatch: (a: GameAction) => void) {
+  // Include current player's hand length in deps so the effect re-fires after DRAW_TILE
+  const currentPlayerHandLength = state.players[state.currentTurn].hand.length
+
   useEffect(() => {
     if (state.phase === 'gameover') return
 
-    // Human draw
+    // Human draw — only if total tile count is still below 14
     if (state.phase === 'drawing' && state.currentTurn === 0) {
-      dispatch({ type: 'DRAW_TILE', playerIndex: 0 as PlayerIndex })
+      const p0 = state.players[0]
+      if (p0.hand.length + p0.melds.length * 3 < 14) {
+        dispatch({ type: 'DRAW_TILE', playerIndex: 0 as PlayerIndex })
+      }
     }
 
-    // AI draw + discard
+    // AI draw + self-draw win check + discard (two-phase via dep array)
     if (state.phase === 'drawing' && state.currentTurn !== 0) {
       const pi = state.currentTurn as PlayerIndex
       const player = state.players[pi]
 
-      // Draw tile
-      dispatch({ type: 'DRAW_TILE', playerIndex: pi })
+      // Phase 2: hand already has the drawn tile (14 concealed tiles, no melds)
+      if (player.hand.length === 14 && isWinningHand(player.hand)) {
+        const timer = setTimeout(() => {
+          dispatch({ type: 'DECLARE_WIN', playerIndex: pi, isSelfDraw: true })
+        }, 400)
+        return () => clearTimeout(timer)
+      }
 
-      // Then discard after delay
+      // Phase 1: total tile count below 14 — draw and return; effect re-fires after draw
+      const totalTiles = player.hand.length + player.melds.length * 3
+      if (totalTiles < 14) {
+        dispatch({ type: 'DRAW_TILE', playerIndex: pi })
+        return
+      }
+
+      // At 14 total tiles (drew but didn't win): discard
       const timer = setTimeout(async () => {
         await randomDelay(800, 1200)
-        const hand = [...player.hand, state.wall[state.wall.length - 1]].filter(Boolean)
-        const discard = aiChooseDiscard(hand)
+        const discard = aiChooseDiscard(player.hand)
         dispatch({ type: 'AI_DISCARD', playerIndex: pi, tile: discard })
       }, 100)
       return () => clearTimeout(timer)
@@ -100,5 +118,5 @@ export function useGameLoop(state: GameState, dispatch: (a: GameAction) => void)
       }, 400)
       return () => clearTimeout(timer)
     }
-  }, [state.phase, state.currentTurn, state.lastDiscard])
+  }, [state.phase, state.currentTurn, state.lastDiscard, currentPlayerHandLength])
 }

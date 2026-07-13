@@ -2,11 +2,11 @@ import { describe, it, expect } from 'vitest'
 import { createInitialState, gameReducer } from './gameReducer'
 
 describe('createInitialState', () => {
-  it('deals 16 tiles to each player', () => {
+  it('deals 13 tiles to each player', () => {
     const state = createInitialState()
     state.players.forEach(p => {
       // flowers replaced immediately, so hand may be slightly smaller + flowers array populated
-      expect(p.hand.length + p.flowers.length).toBeGreaterThanOrEqual(16)
+      expect(p.hand.length + p.flowers.length).toBeGreaterThanOrEqual(13)
     })
   })
 
