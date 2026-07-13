@@ -19,6 +19,7 @@ export type GameState = {
   round: { wind: 'east' | 'south'; dealer: PlayerIndex; roundNum: number }
   pendingClaims: ClaimOption[]
   winner: PlayerIndex | null
+  isSelfDraw: boolean
 }
 
 export type GameAction =
@@ -29,6 +30,7 @@ export type GameAction =
   | { type: 'DRAW_TILE'; playerIndex: PlayerIndex }
   | { type: 'NEXT_ROUND' }
   | { type: 'DECLARE_WIN'; playerIndex: PlayerIndex; isSelfDraw: boolean }
+  | { type: 'ADVANCE_TURN' }
 
 function makePlayer(): Player {
   return { hand: [], melds: [], discards: [], flowers: [], score: 1000 }
@@ -137,6 +139,7 @@ export function createInitialState(): GameState {
     round: { wind: 'east', dealer: 0, roundNum: 1 },
     pendingClaims: [],
     winner: null,
+    isSelfDraw: false,
   }
 }
 
@@ -265,7 +268,11 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     }
 
     case 'DECLARE_WIN': {
-      return { ...state, phase: 'scoring', winner: action.playerIndex }
+      return { ...state, phase: 'scoring', winner: action.playerIndex, isSelfDraw: action.isSelfDraw }
+    }
+
+    case 'ADVANCE_TURN': {
+      return { ...state, phase: 'drawing' }
     }
 
     case 'NEXT_ROUND': {

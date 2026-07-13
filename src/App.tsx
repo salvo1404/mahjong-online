@@ -48,7 +48,7 @@ export default function App() {
 
   const showScoreModal = state.phase === 'scoring'
   const taiResult = showScoreModal && state.winner !== null
-    ? calculateTai(state.players[state.winner].hand, state.players[state.winner].melds, false)
+    ? calculateTai(state.players[state.winner].hand, state.players[state.winner].melds, state.isSelfDraw)
     : null
 
   return (
