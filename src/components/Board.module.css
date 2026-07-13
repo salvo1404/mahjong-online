@@ -1,0 +1,35 @@
+.board {
+  width: 100vw;
+  height: 100vh;
+  background: #1a5c38;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  grid-template-columns: auto 1fr auto;
+  grid-template-areas:
+    ". north ."
+    "west center east"
+    ". south .";
+  gap: 8px;
+  padding: 16px;
+  box-sizing: border-box;
+}
+.north { grid-area: north; }
+.south { grid-area: south; }
+.east  { grid-area: east; }
+.west  { grid-area: west; }
+.center {
+  grid-area: center;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 4px;
+  background: rgba(0,0,0,0.2);
+  border-radius: 8px;
+  padding: 8px;
+}
+.discardZone {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  align-content: flex-start;
+}

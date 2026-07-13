@@ -1,0 +1,31 @@
+.area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.label {
+  color: rgba(255,255,255,0.7);
+  font-size: 12px;
+  font-family: 'Inter', sans-serif;
+}
+.hand {
+  display: flex;
+  gap: 3px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.melds {
+  display: flex;
+  gap: 8px;
+}
+.meldGroup {
+  display: flex;
+  gap: 2px;
+}
+.score {
+  color: #f0c040;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+}
