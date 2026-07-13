@@ -183,21 +183,40 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     case 'DRAW_TILE': {
       const { playerIndex } = action
       if (state.wall.length === 0) return { ...state, phase: 'scoring' }
-      const tile = state.wall[state.wall.length - 1]
-      const newWall = state.wall.slice(0, -1)
+      let tile = state.wall[state.wall.length - 1]
+      let newWall = state.wall.slice(0, -1)
+      let newDeadWall = [...state.deadWall]
+      let flowers: Tile[] = []
+
+      // Replace flowers immediately
+      while (isFlower(tile)) {
+        flowers.push(tile)
+        // Draw replacement from dead wall, or live wall if dead wall empty
+        if (newDeadWall.length > 0) {
+          tile = newDeadWall[newDeadWall.length - 1]
+          newDeadWall = newDeadWall.slice(0, -1)
+        } else if (newWall.length > 0) {
+          tile = newWall[newWall.length - 1]
+          newWall = newWall.slice(0, -1)
+        } else {
+          return { ...state, phase: 'scoring' }
+        }
+      }
+
       const players = state.players.map((p, i) => {
         if (i !== playerIndex) return p
-        if (isFlower(tile)) {
-          return { ...p, flowers: [...p.flowers, tile] }
+        return {
+          ...p,
+          hand: [...p.hand, tile],
+          flowers: [...p.flowers, ...flowers],
         }
-        return { ...p, hand: [...p.hand, tile] }
       }) as GameState['players']
-      return { ...state, players, wall: newWall, phase: 'drawing' }
+      return { ...state, players, wall: newWall, deadWall: newDeadWall, phase: 'drawing' }
     }
 
     case 'HUMAN_CLAIM': {
       if (action.claim.type === 'pass') {
-        return { ...state, pendingClaims: [], phase: 'drawing', currentTurn: 0 }
+        return { ...state, pendingClaims: [], phase: 'drawing' }
       }
       if (action.claim.type === 'win') {
         return { ...state, phase: 'scoring', winner: 0 }

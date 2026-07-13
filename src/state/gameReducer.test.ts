@@ -49,7 +49,6 @@ describe('DISCARD action', () => {
 describe('DRAW_TILE action', () => {
   it('adds a tile to the specified player hand', () => {
     const state = createInitialState()
-    const handSizeBefore = state.players[0].hand.length
     const next = gameReducer(state, { type: 'DRAW_TILE', playerIndex: 0 })
     // Either hand grew (non-flower) or flowers grew (flower tile)
     expect(
@@ -58,7 +57,6 @@ describe('DRAW_TILE action', () => {
       state.players[0].hand.length + state.players[0].flowers.length
     )
     expect(next.wall.length).toBe(state.wall.length - 1)
-    void handSizeBefore
   })
 
   it('transitions to scoring when wall is empty', () => {
