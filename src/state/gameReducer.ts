@@ -222,7 +222,13 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         return { ...state, pendingClaims: [], phase: 'drawing' }
       }
       if (action.claim.type === 'win') {
-        return { ...state, phase: 'scoring', winner: 0 }
+        const winnerHand = state.lastDiscard
+          ? [...state.players[0].hand, state.lastDiscard.tile]
+          : state.players[0].hand
+        const newPlayers = state.players.map((p, i) =>
+          i === 0 ? { ...p, hand: winnerHand } : p
+        ) as [Player, Player, Player, Player]
+        return { ...state, players: newPlayers, phase: 'scoring', winner: 0, isSelfDraw: false }
       }
       const discard = state.lastDiscard!.tile
       // tiles in claim minus the discard itself = tiles taken from hand
@@ -268,7 +274,24 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     }
 
     case 'DECLARE_WIN': {
-      return { ...state, phase: 'scoring', winner: action.playerIndex, isSelfDraw: action.isSelfDraw }
+      const winner = action.playerIndex
+      const isSelfDraw = action.isSelfDraw
+      const winnerPlayer = state.players[winner]
+      const newHand = isSelfDraw
+        ? winnerPlayer.hand
+        : state.lastDiscard
+          ? [...winnerPlayer.hand, state.lastDiscard.tile]
+          : winnerPlayer.hand
+      const newPlayers = state.players.map((p, i) =>
+        i === winner ? { ...p, hand: newHand } : p
+      ) as [Player, Player, Player, Player]
+      return {
+        ...state,
+        players: newPlayers,
+        phase: 'scoring',
+        winner,
+        isSelfDraw,
+      }
     }
 
     case 'ADVANCE_TURN': {

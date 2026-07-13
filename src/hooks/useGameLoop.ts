@@ -12,6 +12,11 @@ export function useGameLoop(state: GameState, dispatch: (a: GameAction) => void)
   useEffect(() => {
     if (state.phase === 'gameover') return
 
+    // Human draw
+    if (state.phase === 'drawing' && state.currentTurn === 0) {
+      dispatch({ type: 'DRAW_TILE', playerIndex: 0 as PlayerIndex })
+    }
+
     // AI draw + discard
     if (state.phase === 'drawing' && state.currentTurn !== 0) {
       const pi = state.currentTurn as PlayerIndex
