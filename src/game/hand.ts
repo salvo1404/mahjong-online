@@ -39,6 +39,8 @@ export function isSevenPairs(tiles: Tile[]): boolean {
   const sorted = sortTiles(tiles)
   for (let i = 0; i < 14; i += 2) {
     if (!tilesEqual(sorted[i], sorted[i + 1])) return false
+    // ensure no quad (i+2 would still match)
+    if (i + 2 < 14 && tilesEqual(sorted[i + 1], sorted[i + 2])) return false
   }
   return true
 }
